@@ -28,6 +28,7 @@ type
     FParams: THashedStringList;
     FUserID: Variant;
     FRemoteParams: TCustomRemoteParams;
+    FCustomAppDataFolder: string;
     function CreateRemoteParamItem: TParamItem;
     function ExeNameWithoutExt: string;
     function GetParam(const ParamName: string): TParamItem;
@@ -45,6 +46,7 @@ type
     function ParamByName(const ParamName: string): TParamItem;
     function HasParam(const ParamName: string): Boolean;
     procedure Refresh;
+    property CustomAppDataFolder: string write FCustomAppDataFolder;
     property AppDataCompanyFolder: string read FAppDataCompanyFolder write FAppDataCompanyFolder;
     property ParamValue[const ParamName: string]: Variant read GetParamValue write SetParamValue; default;
     property Cipher: TParamManagerCipherClass read FCipher write FCipher;
@@ -166,10 +168,15 @@ end;
 
 function TParamManager.AppDataFolder: string;
 begin
-  Result := IncludeTrailingPathDelimiter(GetEnvironmentVariable('APPDATA'));
-  if AppDataCompanyFolder <> '' then
-    Result := Result + IncludeTrailingPathDelimiter(AppDataCompanyFolder);
-  Result := Result + IncludeTrailingPathDelimiter(ExeNameWithoutExt);
+  if FCustomAppDataFolder.IsEmpty then
+  begin
+    Result := IncludeTrailingPathDelimiter(GetEnvironmentVariable('APPDATA'));
+    if AppDataCompanyFolder <> '' then
+      Result := Result + IncludeTrailingPathDelimiter(AppDataCompanyFolder);
+    Result := Result + IncludeTrailingPathDelimiter(ExeNameWithoutExt);
+  end
+  else
+    Result := IncludeTrailingPathDelimiter(FCustomAppDataFolder);
 
   ForceDirectories(Result);
 end;
